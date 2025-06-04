@@ -13,7 +13,12 @@ import secrets
 import string
 
 # Configuration
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+# Replace the password below with the new one you generated in Atlas:
+# Configuration
+# Read the MongoDB URI from the environment (no hard-coded default)
+MONGODB_URL = os.getenv("MONGODB_URL")
+print("→ [DEBUG] Using MONGODB_URL:", MONGODB_URL)
+
 DATABASE_NAME = "golf_tracker"
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
 ALGORITHM = "HS256"
