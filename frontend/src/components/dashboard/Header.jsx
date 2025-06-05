@@ -1,9 +1,9 @@
 import React from 'react';
-import { Golf, Plus, LogOut } from 'lucide-react';
+import { Target, Plus, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { golfTheme } from '../../styles/golfTheme';
 import Button from '../common/Button';
 import WeatherWidget from './WeatherWidget';
-import { golfTheme } from '../../styles/golfTheme';
 
 const Header = ({ onAddRound }) => {
   const { user, logout } = useAuth();
@@ -25,7 +25,7 @@ const Header = ({ onAddRound }) => {
       pointerEvents: 'none',
     },
     container: {
-      maxWidth: '1280px',
+      maxWidth: '1200px',
       margin: '0 auto',
       padding: '0 24px',
       position: 'relative',
@@ -36,6 +36,7 @@ const Header = ({ onAddRound }) => {
       justifyContent: 'space-between',
       alignItems: 'center',
       height: '80px',
+      gap: '24px',
     },
     logoSection: {
       display: 'flex',
@@ -50,6 +51,7 @@ const Header = ({ onAddRound }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      boxShadow: '0 4px 15px rgba(255, 255, 255, 0.3)',
     },
     logoText: {
       fontSize: '24px',
@@ -63,6 +65,11 @@ const Header = ({ onAddRound }) => {
       color: 'rgba(255,255,255,0.8)',
       margin: 0,
     },
+    centerSection: {
+      flex: 1,
+      display: 'flex',
+      justifyContent: 'center',
+    },
     rightSection: {
       display: 'flex',
       alignItems: 'center',
@@ -74,16 +81,33 @@ const Header = ({ onAddRound }) => {
       gap: '12px',
       color: 'white',
     },
+    userIcon: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      background: 'rgba(255, 255, 255, 0.2)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     userText: {
       textAlign: 'right',
     },
     userName: {
       fontSize: '14px',
-      fontWeight: '500',
+      fontWeight: '600',
+      margin: 0,
     },
     userSubtext: {
       fontSize: '12px',
       opacity: 0.8,
+      margin: 0,
+    },
+    friendCode: {
+      fontSize: '10px',
+      opacity: 0.7,
+      fontFamily: 'monospace',
+      margin: 0,
     }
   };
 
@@ -94,7 +118,7 @@ const Header = ({ onAddRound }) => {
         <div style={styles.content}>
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
-              <Golf size={24} color={golfTheme.colors.primary} />
+              <Target size={24} color={golfTheme.colors.primary} />
             </div>
             <div>
               <h1 style={styles.logoText}>GolfTracker Pro</h1>
@@ -102,14 +126,15 @@ const Header = ({ onAddRound }) => {
             </div>
           </div>
 
-          <div style={styles.rightSection}>
+          <div style={styles.centerSection}>
             <WeatherWidget />
-            
+          </div>
+
+          <div style={styles.rightSection}>
             <Button
               onClick={onAddRound}
+              variant="achievement"
               style={{
-                background: golfTheme.gradients.achievement,
-                color: golfTheme.colors.primary,
                 boxShadow: '0 4px 15px rgba(255, 215, 0, 0.4)',
               }}
             >
@@ -118,9 +143,13 @@ const Header = ({ onAddRound }) => {
             </Button>
 
             <div style={styles.userInfo}>
+              <div style={styles.userIcon}>
+                <User size={20} color="white" />
+              </div>
               <div style={styles.userText}>
-                <div style={styles.userName}>Welcome back, {user?.username}!</div>
-                <div style={styles.userSubtext}>Ready for another round?</div>
+                <p style={styles.userName}>Welcome, {user?.username}!</p>
+                <p style={styles.userSubtext}>Ready for golf?</p>
+                <p style={styles.friendCode}>Code: {user?.friend_code}</p>
               </div>
               
               <Button
@@ -134,7 +163,6 @@ const Header = ({ onAddRound }) => {
                 }}
               >
                 <LogOut size={16} />
-                Sign Out
               </Button>
             </div>
           </div>

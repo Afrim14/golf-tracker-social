@@ -16,7 +16,7 @@ const Button = ({
 
   const getButtonStyle = () => {
     const baseStyle = {
-      background: golfTheme.gradients.secondary,
+      background: golfTheme.gradients.fairway,
       border: 'none',
       borderRadius: '25px',
       padding: '12px 24px',
@@ -27,14 +27,15 @@ const Button = ({
       boxShadow: golfTheme.shadows.button,
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: '8px',
-      fontFamily: golfTheme.typography.fontFamily,
-      fontSize: golfTheme.typography.sizes.sm,
+      fontSize: '14px',
+      fontFamily: 'inherit',
     };
 
     if (isHovered && !disabled) {
       baseStyle.transform = 'translateY(-2px)';
-      baseStyle.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+      baseStyle.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.4)';
     }
 
     if (variant === 'secondary') {
@@ -48,19 +49,25 @@ const Button = ({
       baseStyle.boxShadow = '0 4px 15px rgba(244, 67, 54, 0.3)';
     }
 
+    if (variant === 'achievement') {
+      baseStyle.background = golfTheme.gradients.achievement;
+      baseStyle.color = golfTheme.colors.primary;
+    }
+
     if (size === 'small') {
       baseStyle.padding = '8px 16px';
-      baseStyle.fontSize = '14px';
+      baseStyle.fontSize = '12px';
     }
 
     if (size === 'large') {
       baseStyle.padding = '16px 32px';
-      baseStyle.fontSize = '18px';
+      baseStyle.fontSize = '16px';
     }
 
     if (disabled) {
       baseStyle.opacity = '0.5';
       baseStyle.cursor = 'not-allowed';
+      baseStyle.transform = 'none';
     }
 
     return { ...baseStyle, ...style };

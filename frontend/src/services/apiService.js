@@ -38,9 +38,6 @@ class ApiService {
     });
 
     if (!response.ok) {
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-      }
       const error = await response.json();
       throw new Error(error.detail || 'Invalid credentials');
     }

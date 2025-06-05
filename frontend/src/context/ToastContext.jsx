@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
 import { golfTheme } from '../styles/golfTheme';
 
 const ToastContext = createContext();
@@ -14,64 +15,74 @@ export const useToast = () => {
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const showToast = (config) => {
-    const { message, type = 'success', duration = 3000 } = config;
+  const showToast = (message, type = 'success') => {
     const id = Date.now();
-    
     setToasts(prev => [...prev, { id, message, type }]);
     
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, duration);
+    }, 4000);
   };
 
-  const toastStyles = {
-    container: {
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      zIndex: 1000,
-    },
-    toast: {
-      background: golfTheme.gradients.card,
-      color: 'white',
-      padding: '16px 20px',
-      marginBottom: '8px',
-      minWidth: '300px',
-      borderRadius: golfTheme.borderRadius.medium,
-      boxShadow: golfTheme.shadows.medium,
-      animation: 'slideIn 0.3s ease-out',
-    },
-    success: {
-      backgroundColor: golfTheme.colors.fairway,
-    },
-    error: {
-      backgroundColor: '#f44336',
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
+
+  const getToastIcon = (type) => {
+    switch (type) {
+      case 'success': return <CheckCircle size={20} />;
+      case 'error': return <AlertCircle size={20} />;
+      case 'info': return <Info size={20} />;
+      default: return <CheckCircle size={20} />;
+    }
+  };
+
+  const getToastColor = (type) => {
+    switch (type) {
+      case 'success': return golfTheme.colors.success;
+      case 'error': return golfTheme.colors.error;
+      case 'info': return golfTheme.colors.water;
+      default: return golfTheme.colors.success;
     }
   };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div style={toastStyles.container}>
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
+      }}>
         {toasts.map(toast => (
           <div
             key={toast.id}
             style={{
-              ...toastStyles.toast,
-              ...(toast.type === 'success' ? toastStyles.success : toastStyles.error),
+              background: golfTheme.gradients.card,
+              border: `2px solid ${getToastColor(toast.type)}`,
+              borderRadius: golfTheme.borderRadius.medium,
+              padding: '16px 20px',
+              minWidth: '300px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              boxShadow: golfTheme.shadows.large,
+              animation: 'slideIn 0.3s ease-out',
+              color: getToastColor(toast.type),
+              cursor: 'pointer'
             }}
+            onClick={() => removeToast(toast.id)}
           >
-            {toast.message}
+            {getToastIcon(toast.type)}
+            <span style={{ fontWeight: '500', flex: 1 }}>{toast.message}</span>
+            <X size={16} style={{ opacity: 0.7 }} />
           </div>
         ))}
       </div>
-      <style jsx global>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `}</style>
     </ToastContext.Provider>
   );
 };
