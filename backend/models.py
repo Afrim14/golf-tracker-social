@@ -1,60 +1,45 @@
-# backend/models.py
-
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
-from sqlalchemy.orm import relationship
-
-from .database import Base
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(length=50), unique=True, index=True, nullable=False)
-    email = Column(String(length=100), unique=True, index=True, nullable=False)
-    full_name = Column(String(length=100), nullable=True)
-    friend_code = Column(String(length=6), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(length=128), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    # Relationship → all Scorecards owned by this user
-    scorecards = relationship(
-        "Scorecard", back_populates="owner", cascade="all, delete-orphan"
-    )
-
-    # Relationship → all Friendship entries where this user is the “root” user
-    friendships = relationship(
-        "Friendship",
-        primaryjoin="User.id == Friendship.user_id",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
+from typing import Optional, List, Any
+from beanie import Document
+from pydantic import Field, ConfigDict
+from bson import ObjectId
 
 
-class Scorecard(Base):
-    __tablename__ = "scorecards"
+class User(Document):
+    username: str = Field(..., unique=True)
+    email: str = Field(..., unique=True)
+    full_name: Optional[str] = None
+    friend_code: str = Field(..., unique=True)
+    hashed_password: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    course_name = Column(String(length=100), nullable=False)
-    date_played = Column(DateTime, nullable=False)
-    holes = Column(JSON, nullable=False)        # Store hole details as JSON
-    weather = Column(String(length=100), nullable=True)
-    notes = Column(String(length=500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    # Relationship → link back to owner User
-    owner = relationship("User", back_populates="scorecards")
+    class Settings:
+        name = "users"
 
 
-class Friendship(Base):
-    __tablename__ = "friendships"
+class Scorecard(Document):
+    user_id: ObjectId
+    course_name: str
+    date_played: datetime
+    holes: List[dict]  # List of hole data
+    weather: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    friend_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    # Relationship → link back to “root” user who created this friendship
-    user = relationship("User", foreign_keys=[user_id], back_populates="friendships")
+    class Settings:
+        name = "scorecards"
+
+
+class Friendship(Document):
+    user_id: ObjectId
+    friend_id: ObjectId
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    class Settings:
+        name = "friendships"

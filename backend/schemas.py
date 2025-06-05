@@ -2,8 +2,24 @@
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, EmailStr, Field
+from bson import ObjectId
 
-from pydantic import BaseModel, EmailStr
+
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid objectid")
+        return ObjectId(v)
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(type="string")
 
 
 # ─── USER SCHEMAS ─────────────────────────────────────────────────────────────
@@ -17,11 +33,14 @@ class UserCreate(UserBase):
     password: str
 
 class UserResponse(UserBase):
-    id: int
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     friend_code: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 # ─── TOKEN SCHEMAS ────────────────────────────────────────────────────────────
@@ -49,8 +68,8 @@ class ScorecardCreate(BaseModel):
     notes: Optional[str] = None
 
 class ScorecardResponse(BaseModel):
-    id: int
-    user_id: int
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    user_id: PyObjectId
     course_name: str
     date_played: datetime
     holes: List[HoleScore]
@@ -59,7 +78,10 @@ class ScorecardResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 # ─── FRIEND SCHEMAS ───────────────────────────────────────────────────────────
@@ -68,13 +90,16 @@ class FriendRequest(BaseModel):
     friend_code: str
 
 class FriendResponse(BaseModel):
-    id: int
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     username: str
     full_name: Optional[str] = None
     friend_code: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 # ─── STATS SCHEMA ─────────────────────────────────────────────────────────────
